@@ -154,7 +154,8 @@ class Image(object):
         info.target_bus = disk_bus
         info.target_dev = disk_dev
         info.driver_cache = cache_mode
-        info.driver_discard = self.discard_mode
+        if disk_bus == 'scsi':
+            info.driver_discard = self.discard_mode
         info.driver_format = self.driver_format
         driver_name = libvirt_utils.pick_disk_driver_name(hypervisor_version,
                                                           self.is_block_dev)
@@ -656,8 +657,6 @@ class Rbd(Image):
                                  ' images_rbd_pool'
                                  ' flag to use rbd images.'))
         self.pool = CONF.libvirt.images_rbd_pool
-        self.discard_mode = get_hw_disk_discard(
-                CONF.libvirt.hw_disk_discard)
         self.rbd_user = CONF.libvirt.rbd_user
         self.ceph_conf = CONF.libvirt.images_rbd_ceph_conf
 
@@ -688,7 +687,8 @@ class Rbd(Image):
         info.source_device = device_type
         info.driver_format = 'raw'
         info.driver_cache = cache_mode
-        info.driver_discard = self.discard_mode
+        if disk_bus == 'scsi':
+            info.driver_discard = self.discard_mode
         info.target_bus = disk_bus
         info.target_dev = disk_dev
         info.source_type = 'network'

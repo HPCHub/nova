@@ -44,6 +44,7 @@ from nova import utils
 from nova.virt.libvirt import config as vconfig
 from nova.virt.libvirt import quobyte
 from nova.virt.libvirt import remotefs
+import nova.virt.libvirt.driver
 from nova.virt.libvirt import utils as libvirt_utils
 
 LOG = logging.getLogger(__name__)
@@ -139,6 +140,13 @@ class LibvirtBaseVolumeDriver(object):
         conf.target_dev = disk_info['dev']
         conf.target_bus = disk_info['bus']
         conf.serial = connection_info.get('serial')
+
+        discard = CONF.libvirt.hw_disk_discard
+        if discard and conf.target_bus == 'scsi':
+            if self.connection._host.has_min_version(nova.virt.libvirt.driver.MIN_LIBVIRT_DISCARD_VERSION,
+                                                     nova.virt.libvirt.driver.MIN_QEMU_DISCARD_VERSION,
+                                                     nova.virt.libvirt.driver.REQ_HYPERVISOR_DISCARD):
+                conf.driver_discard = discard
 
         # Support for block size tuning
         data = {}

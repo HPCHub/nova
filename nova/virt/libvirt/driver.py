@@ -3089,6 +3089,7 @@ class LibvirtDriver(driver.ComputeDriver):
 
     def _get_guest_disk_config(self, instance, name, disk_mapping, inst_type,
                                image_type=None):
+        disk_info = disk_mapping[name]
         if CONF.libvirt.hw_disk_discard:
             if not self._host.has_min_version(MIN_LIBVIRT_DISCARD_VERSION,
                                               MIN_QEMU_DISCARD_VERSION,
@@ -3099,11 +3100,12 @@ class LibvirtDriver(driver.ComputeDriver):
                       {'libvirt': MIN_LIBVIRT_DISCARD_VERSION,
                        'qemu': MIN_QEMU_DISCARD_VERSION})
                 raise exception.Invalid(msg)
+            if disk_info['bus'] != 'scsi':
+                LOG.warn('Disk discard being set for non-scsi bus')
 
         image = self.image_backend.image(instance,
                                          name,
                                          image_type)
-        disk_info = disk_mapping[name]
         return image.libvirt_info(disk_info['bus'],
                                   disk_info['dev'],
                                   disk_info['type'],
