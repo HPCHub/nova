@@ -907,6 +907,11 @@ class API(base.Base):
 
         base_options.update(options_from_image)
 
+        # extract os_type from flavor
+        if ('extra_specs' in instance_type and
+                'os:type' in instance_type['extra_specs']):
+            base_options['os_type'] = instance_type['extra_specs']['os:type']
+
         # return the validated options and maximum number of instances allowed
         # by the network quotas
         return base_options, max_network_count
