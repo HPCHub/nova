@@ -4173,7 +4173,7 @@ class LibvirtDriver(driver.ComputeDriver):
             tmhyperv.present = True
             clk.add_timer(tmhyperv)
 
-    def _set_features(self, guest, os_type, caps, virt_type):
+    def _set_features(self, guest, os_type, caps, virt_type, extra_specs):
         if virt_type == "xen":
             # PAE only makes sense in X86
             if caps.host.cpu.arch in (arch.I686, arch.X86_64):
@@ -4200,6 +4200,9 @@ class LibvirtDriver(driver.ComputeDriver):
                 hv.spinlock_retries = 8191
                 hv.vapic = True
             guest.features.append(hv)
+
+        if virt_type in ("qemu", "kvm") and 'hw:hide_kvm' in extra_specs:
+            guest.features.append(vconfig.LibvirtConfigGuestFeatureKvmHidden())
 
     def _create_serial_console_devices(self, guest, instance, flavor,
                                        image_meta):
@@ -4581,7 +4584,8 @@ class LibvirtDriver(driver.ComputeDriver):
             self._conf_non_lxc_uml(virt_type, guest, root_device_name, rescue,
                     instance, inst_path, image_meta, disk_info)
 
-        self._set_features(guest, instance.os_type, caps, virt_type)
+        self._set_features(guest, instance.os_type, caps, virt_type,
+                           flavor.extra_specs)
         self._set_clock(guest, instance.os_type, image_meta, virt_type)
 
         storage_configs = self._get_guest_storage_config(
