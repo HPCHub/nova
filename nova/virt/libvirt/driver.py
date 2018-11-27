@@ -4631,7 +4631,8 @@ class LibvirtDriver(driver.ComputeDriver):
             add_video_driver = True
 
         if (CONF.spice.enabled and
-                virt_type not in ('lxc', 'uml', 'xen')):
+                virt_type not in ('lxc', 'uml', 'xen') and
+                'hw:disable_spice' not in flavor.extra_specs):
             graphics = vconfig.LibvirtConfigGuestGraphics()
             graphics.type = "spice"
             graphics.keymap = CONF.spice.keymap
