@@ -64,6 +64,10 @@ class HypervisorsController(wsgi.Controller):
                 'disabled_reason': service.disabled_reason,
                 }
 
+            hyp_dict['pci_pools'] = [
+                p.to_dict() for p in hypervisor['pci_device_pools']
+            ]
+
         if servers:
             hyp_dict['servers'] = [dict(name=serv['name'], uuid=serv['uuid'])
                                    for serv in servers]
