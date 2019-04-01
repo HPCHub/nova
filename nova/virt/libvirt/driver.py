@@ -4611,7 +4611,8 @@ class LibvirtDriver(driver.ComputeDriver):
             guest.add_device(tablet)
 
         if (CONF.spice.enabled and CONF.spice.agent_enabled and
-                virt_type not in ('lxc', 'uml', 'xen')):
+                virt_type not in ('lxc', 'uml', 'xen') and
+                'hw:disable_spice' not in flavor.extra_specs):
             channel = vconfig.LibvirtConfigGuestChannel()
             channel.target_name = "com.redhat.spice.0"
             guest.add_device(channel)
